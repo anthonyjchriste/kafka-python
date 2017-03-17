@@ -676,6 +676,22 @@ class KafkaConsumer(six.Iterator):
         """
         return self._subscription.paused_partitions()
 
+    def offsets_for_times(self, timestamps_to_search):
+        """Get the offsets corresponding to the given partitions and timestamps.
+        
+        Arguments:
+            timestamps_to_search {TopicPartition: timestamp int}: Where the timestamp is epoch seconds.
+        
+        Returns:
+             dict: {partition (TopicPartition), (offset int, timestamp int)}
+        """
+        r = dict()
+        for partition in timestamps_to_search:
+            timestamp = timestamps_to_search[partition]
+            offset = self._fetcher._offset(partition, timestamp)
+            r[partition] = (offset, timestamp)
+        return r
+
     def resume(self, *partitions):
         """Resume fetching from the specified (paused) partitions.
 
